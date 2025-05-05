@@ -3,7 +3,7 @@ FROM php:8.2-apache
 # Installing dependencies
 RUN apt-get update && apt-get install -y cron zip unzip libxml2-dev && docker-php-ext-install dom
 
-# Копируем код и конфиги
+# Copy the code and configs
 COPY . /app
 WORKDIR /app
 
