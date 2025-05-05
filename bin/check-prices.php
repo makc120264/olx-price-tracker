@@ -10,7 +10,7 @@ $pdo = require __DIR__ . '/../config/db.php';
 $parser = new Parser();
 $mailer = new Mailer();
 
-// Получаем все уникальные объявления с подписками
+// Get all unique ads with subscriptions
 $stmt = $pdo->query(
     "
     SELECT l.id, l.url, l.last_price
@@ -35,11 +35,11 @@ foreach ($listings as $listing) {
     if ((float)$currentPrice !== (float)$listing['last_price']) {
         echo "Price changed: {$listing['last_price']} → {$currentPrice}\n";
 
-        // Обновим цену
+        // Update the price
         $stmt = $pdo->prepare("UPDATE listings SET last_price = ?, updated_at = NOW() WHERE id = ?");
         $stmt->execute([$currentPrice, $listing['id']]);
 
-        // Получим всех подписчиков
+        // Get all subscribers
         $stmt = $pdo->prepare("SELECT email FROM subscriptions WHERE listing_id = ?");
         $stmt->execute([$listing['id']]);
         $emails = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -49,9 +49,9 @@ foreach ($listings as $listing) {
                 $email,
                 "Price changed",
                 <<<EOL
-Цена объявления по ссылке {$listing['url']} изменилась:
-Старая цена: {$listing['last_price']}
-Новая цена: {$currentPrice}
+Ad price by link {$listing['url']} has changed:
+Old price: {$listing['last_price']}
+New price: {$currentPrice}
 EOL
             );
         }

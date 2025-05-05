@@ -4,9 +4,12 @@ namespace App\Parser;
 
 class Parser
 {
+    /**
+     * @param string $url
+     * @return string|null
+     */
     public function fetchCurrentPrice(string $url): ?string
     {
-//        $html = @file_get_contents($url);
         $html = $this->getFileContents($url);
         if (!$html) {
             return null;
@@ -19,7 +22,7 @@ class Parser
 
         $xpath = new \DOMXPath($dom);
 
-        // Пример: ищем цену по data-testid атрибуту OLX
+        // we are looking for price by data-testid attribute OLX
         $priceNode = $xpath->query('//*[@data-testid="ad-price-container"]');
 
         if ($priceNode->length > 0) {
@@ -35,7 +38,10 @@ class Parser
         return null;
     }
 
-    // Обёртка для file_get_contents
+    /**
+     * @param string $url
+     * @return string|null
+     */
     public function getFileContents(string $url): ?string
     {
         return @file_get_contents($url);

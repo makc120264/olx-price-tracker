@@ -8,6 +8,10 @@ use Dotenv\Dotenv;
 
 class SubscribeController
 {
+    /**
+     * @param array $data
+     * @return void
+     */
     public function subscribe(array $data): void
     {
         // Load env variables

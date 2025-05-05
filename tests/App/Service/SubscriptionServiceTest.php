@@ -6,83 +6,102 @@ use App\Parser\Parser;
 use PDO;
 use PDOStatement;
 use PHPUnit\Framework\TestCase;
+use Random\RandomException;
 
 class SubscriptionServiceTest extends TestCase
 {
 
+    /**
+     * @var
+     */
     private $db;
-    private $subscriptionService;
+    /**
+     * @var SubscriptionService
+     */
+    private SubscriptionService $subscriptionService;
 
+    /**
+     * @return void
+     */
     protected function setUp(): void
     {
-        // Создаем замок базы данных
+        // Create a mock database
         $this->db = $this->createMock(PDO::class);
-
-        // Создаем объект SubscriptionService с замоканным db
+        // Create a SubscriptionService object with a mocked db
         $this->subscriptionService = new SubscriptionService($this->db);
     }
 
+    /**
+     * @return void
+     * @throws RandomException
+     */
     public function testCreateOrUpdateSubscription()
     {
         $email = 'test@example.com';
         $url = 'https://example.com/ad';
 
         $subscriptionService = $this->getMockBuilder(SubscriptionService::class)
-            ->setConstructorArgs([$this->db]) // Параметры конструктора
-            ->onlyMethods(['findOrCreateUser', 'findOrCreateListing']) // Замокаем только эти методы
+            ->setConstructorArgs([$this->db]) // Constructor parameters
+            ->onlyMethods(['findOrCreateUser', 'findOrCreateListing']) // Lock only these methods
             ->getMock();
 
-// Устанавливаем возвращаемые значения
-        $subscriptionService->method('findOrCreateUser')->willReturn(1); // ID пользователя
-        $subscriptionService->method('findOrCreateListing')->willReturn(100); // ID объявления
+        // Set the return values
+        $subscriptionService->method('findOrCreateUser')->willReturn(1); // user ID
+        $subscriptionService->method('findOrCreateListing')->willReturn(100); // ad ID
 
-        // Замокаем работу с БД для поиска существующей подписки
+        // Lock work with the database to search for an existing subscription
         $stmtMock = $this->createMock(PDOStatement::class);
         $stmtMock->method('fetch')
-            ->willReturn(false);  // Нет существующей подписки
+            ->willReturn(false);  // No existing subscription
 
-        // Замокаем подготовку SQL-запросов
+        // Lock preparation of SQL queries
         $this->db->method('prepare')
             ->willReturn($stmtMock);
 
-        // Вставка новой подписки
+        // Insert new subscription
         $stmtMockInsert = $this->createMock(PDOStatement::class);
         $this->db->method('prepare')
             ->willReturn($stmtMockInsert);
 
-        // Проверяем, что метод вернет новый токен
+        // Check that the method will return a new token
         $token = $this->subscriptionService->createOrUpdateSubscription($email, $url);
 
-        // Проверяем, что метод вернул токен
+        // Check that the method returned a token
         $this->assertMatchesRegularExpression('/^[a-f0-9]{64}$/', $token);
     }
 
+    /**
+     * @return void
+     */
     public function testFindOrCreateUser()
     {
-        // Создаем мок для базы данных
+        // Create a mock for the database
         $dbMock = $this->createMock(PDO::class);
 
-        // Мок для prepare метода
+        // Mock for prepare method
         $stmtMock = $this->createMock(PDOStatement::class);
 
-        // Настроим mock для метода prepare, чтобы он возвращал наш $stmtMock
+        // Set up a mock for the prepare method so that it returns our $stmtMock
         $dbMock->method('prepare')->willReturn($stmtMock);
 
-        // Настроим mock для execute метода, чтобы он всегда возвращал true
+        // Set up a mock for the execute method so that it always returns true
         $stmtMock->method('execute')->willReturn(true);
 
-        // Настроим mock для fetch метода, чтобы он возвращал данные пользователя
+        // Set up a mock for the fetch method so that it returns user data
         $stmtMock->method('fetch')->willReturn(['id' => 123]);
 
-        // Создаем экземпляр SubscriptionService с замоканным $db
+        // Create a SubscriptionService instance with $db mocked
         $subscriptionService = new SubscriptionService($dbMock);
 
-        // Проверяем, что возвращаемое значение — это id существующего пользователя
+        // Check that the returned value is the id of an existing user
         $result = $subscriptionService->findOrCreateUser('user@example.com');
 
         $this->assertEquals($result, $result);
     }
 
+    /**
+     * @return void
+     */
     public function testFindOrCreateListing()
     {
         $url = 'https://olx.example/ad/123';

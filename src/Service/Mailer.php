@@ -7,6 +7,12 @@ use PHPMailer\PHPMailer\Exception;
 
 class Mailer
 {
+    /**
+     * @param string $to
+     * @param string $subject
+     * @param string $body
+     * @return bool
+     */
     public function send(string $to, string $subject, string $body): bool
     {
         $headers = 'From: ' . $_ENV['MAIL_FROM'] . "\r\n" .
@@ -15,12 +21,17 @@ class Mailer
         return mail($to, $subject, $body, $headers);
     }
 
+    /**
+     * @param string $email
+     * @param string $confirmUrl
+     * @return bool
+     */
     public function sendConfirmationEmail(string $email, string $confirmUrl): bool
     {
         $mail = new PHPMailer(true);
 
         try {
-            // Настройки сервера (замени на свои)
+            // Server settings
             $mail->isSMTP();
             $mail->Host = $_ENV['SMTP_HOST'];
             $mail->SMTPAuth = true;
@@ -40,7 +51,7 @@ class Mailer
             $mail->send();
             return true;
         } catch (Exception $e) {
-            // Логируем или просто возвращаем false
+            // Log or just return false
             return false;
         }
     }

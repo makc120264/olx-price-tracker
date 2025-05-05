@@ -34,7 +34,7 @@ if ($sub['confirmed_at']) {
     exit;
 }
 
-// Обновляем флаг подтверждения
+// Update the confirmation flag
 $db->prepare("UPDATE subscriptions SET confirmed_at = NOW() WHERE id = ?")->execute([$sub['id']]);
 $db->prepare("UPDATE users SET confirmed_at = NOW() WHERE id = ?")->execute([$sub['user_id']]);
 

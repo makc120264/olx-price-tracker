@@ -7,8 +7,14 @@ use Dotenv\Dotenv;
 
 class Database
 {
+    /**
+     * @var PDO|null
+     */
     private static ?PDO $instance = null;
 
+    /**
+     * @return PDO
+     */
     public static function getInstance(): PDO
     {
         if (self::$instance === null) {
