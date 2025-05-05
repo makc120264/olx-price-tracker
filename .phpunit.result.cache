@@ -1,0 +1,1 @@
+{"version":1,"defects":[],"times":{"App\\Parser\\ParserTest::testFetchCurrentPrice":0.006,"App\\Service\\SubscriptionServiceTest::testCreateOrUpdateSubscription":1.27,"App\\Service\\SubscriptionServiceTest::testFindOrCreateUser":0.001,"App\\Service\\SubscriptionServiceTest::testFindOrCreateListing":0.001}}
